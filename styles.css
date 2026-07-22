@@ -1,8 +1,238 @@
-/*
+.music-player-card {
+	display: grid;
+	grid-template-columns: 112px minmax(0, 1fr);
+	gap: 18px;
+	align-items: center;
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+	width: 100%;
+	max-width: 720px;
+	padding: 16px;
 
-If your plugin does not need CSS, delete this file.
+	box-sizing: border-box;
 
-*/
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 16px;
+
+	background:
+		linear-gradient(
+			135deg,
+			var(--background-secondary),
+			var(--background-primary-alt)
+		);
+
+	box-shadow:
+		0 8px 24px rgba(0, 0, 0, 0.12);
+
+	transition:
+		transform 160ms ease,
+		box-shadow 160ms ease;
+}
+
+.music-player-card:hover {
+	transform: translateY(-1px);
+
+	box-shadow:
+		0 12px 30px rgba(0, 0, 0, 0.16);
+}
+
+.music-player-cover {
+	width: 112px;
+	height: 112px;
+	overflow: hidden;
+
+	border-radius: 12px;
+	background: var(--background-modifier-border);
+}
+
+.music-player-cover img {
+	display: block;
+
+	width: 100%;
+	height: 100%;
+
+	object-fit: cover;
+}
+
+.music-player-cover-placeholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	width: 100%;
+	height: 100%;
+
+	font-size: 42px;
+	color: var(--text-muted);
+}
+
+.music-player-content {
+	display: flex;
+	flex-direction: column;
+
+	width: 100%;
+	min-width: 0;
+}
+
+.music-player-metadata {
+	min-width: 0;
+}
+
+.music-player-title {
+	overflow: hidden;
+
+	font-size: 18px;
+	font-weight: 700;
+	line-height: 1.3;
+
+	text-overflow: ellipsis;
+	white-space: nowrap;
+
+	color: var(--text-normal);
+}
+
+.music-player-artist {
+	margin-top: 4px;
+	overflow: hidden;
+
+	font-size: 14px;
+
+	text-overflow: ellipsis;
+	white-space: nowrap;
+
+	color: var(--text-muted);
+}
+
+.music-player-content audio {
+	display: none;
+}
+
+.music-player-controls {
+	display: grid;
+	grid-template-columns: 42px 40px minmax(0, 1fr) 40px;
+	gap: 10px;
+	align-items: center;
+
+	width: 100%;
+	min-width: 0;
+	margin-top: 18px;
+}
+
+.music-player-play-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	width: 42px;
+	height: 42px;
+	padding: 0;
+
+	border: none;
+	border-radius: 50%;
+
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+
+	cursor: pointer;
+
+	box-shadow:
+		0 4px 10px rgba(0, 0, 0, 0.18);
+
+	transition:
+		transform 120ms ease,
+		filter 120ms ease,
+		box-shadow 120ms ease;
+}
+
+.music-player-play-button svg {
+	width: 20px;
+	height: 20px;
+	stroke-width: 2.2;
+}
+
+.music-player-play-button:hover {
+	transform: scale(1.06);
+	filter: brightness(1.08);
+
+	box-shadow:
+		0 6px 14px rgba(0, 0, 0, 0.22);
+}
+
+.music-player-play-button:active {
+	transform: scale(0.96);
+}
+
+.music-player-time {
+	font-size: 11px;
+	font-variant-numeric: tabular-nums;
+
+	color: var(--text-muted);
+}
+
+.music-player-current-time {
+	text-align: left;
+}
+
+.music-player-duration {
+	text-align: right;
+}
+
+.music-player-controls
+	> input.music-player-progress[type="range"] {
+	display: block;
+
+	width: 100% !important;
+	min-width: 0 !important;
+	max-width: none !important;
+
+	inline-size: 100% !important;
+	justify-self: stretch;
+
+	margin: 0;
+	padding: 0;
+
+	box-sizing: border-box;
+	cursor: pointer;
+
+	accent-color: var(--interactive-accent);
+}
+
+.music-player-error {
+	padding: 12px 14px;
+
+	border: 1px solid var(--background-modifier-error);
+	border-radius: 10px;
+
+	background: rgba(var(--background-modifier-error-rgb), 0.12);
+	color: var(--text-error);
+}
+
+@media (max-width: 520px) {
+	.music-player-card {
+		grid-template-columns: 76px minmax(0, 1fr);
+		gap: 12px;
+
+		padding: 12px;
+	}
+
+	.music-player-cover {
+		width: 76px;
+		height: 76px;
+	}
+
+	.music-player-controls {
+		grid-template-columns: 38px 34px minmax(0, 1fr) 34px;
+		gap: 8px;
+
+		margin-top: 12px;
+	}
+
+	.music-player-play-button {
+		width: 38px;
+		height: 38px;
+	}
+
+	.music-player-play-button svg {
+		width: 18px;
+		height: 18px;
+	}
+}

@@ -1,114 +1,233 @@
 import {
-	Editor,
-	MarkdownView,
-	MarkdownFileInfo,
-	Modal,
-	Notice,
+	MarkdownPostProcessorContext,
 	Plugin,
-} from 'obsidian';
-import {
-	DEFAULT_SETTINGS,
-	MyPluginSettings,
-	SampleSettingTab,
-} from './settings';
+	TFile,
+	setIcon,
+} from "obsidian";
+import { parse } from "yaml";
 
-// Remember to rename these classes and interfaces!
-
-export default class MyPlugin extends Plugin {
-	settings!: MyPluginSettings;
-
-	async onload() {
-		await this.loadSettings();
-
-		// This creates an icon in the left ribbon.
-		this.addRibbonIcon('dice', 'Sample', (_evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
-		});
-
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status bar text');
-
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-modal-simple',
-			name: 'Open modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
-			},
-		});
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'replace-selected',
-			name: 'Replace selected content',
-			editorCallback: (
-				editor: Editor,
-				_ctx: MarkdownView | MarkdownFileInfo,
-			) => {
-				editor.replaceSelection('Sample editor command');
-			},
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-modal-complex',
-			name: 'Open modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView =
-					this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
-
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
-				return false;
-			},
-		});
-
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
-
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(activeDocument, 'click', (_evt: MouseEvent) => {
-			new Notice('Click');
-		});
-
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(
-			window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000),
-		);
-	}
-
-	onunload() {}
-
-	async loadSettings() {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			(await this.loadData()) as Partial<MyPluginSettings>,
-		);
-	}
-
-	async saveSettings() {
-		await this.saveData(this.settings);
-	}
+interface MusicObject {
+	title?: string;
+	artist?: string;
+	src?: string;
+	cover?: string;
 }
 
-class SampleModal extends Modal {
-	onOpen() {
-		const { contentEl } = this;
-		contentEl.setText('Woah!');
+export default class KnowledgeObjectsPlugin extends Plugin {
+	async onload(): Promise<void> {
+		this.registerMarkdownCodeBlockProcessor(
+			"music",
+			(
+				source: string,
+				el: HTMLElement,
+				ctx: MarkdownPostProcessorContext,
+			) => {
+				try {
+					const music = parse(source) as MusicObject;
+					this.renderMusicPlayer(music, el, ctx);
+				} catch (error) {
+					const message =
+						error instanceof Error
+							? error.message
+							: "无法解析 music 对象";
+
+					el.createDiv({
+						cls: "music-player-error",
+						text: message,
+					});
+				}
+			},
+		);
 	}
 
-	onClose() {
-		const { contentEl } = this;
-		contentEl.empty();
+	private renderMusicPlayer(
+		music: MusicObject,
+		container: HTMLElement,
+		ctx: MarkdownPostProcessorContext,
+	): void {
+		const audioFile = music.src
+			? this.resolveVaultFile(music.src, ctx.sourcePath)
+			: null;
+
+		if (!audioFile) {
+			container.createDiv({
+				cls: "music-player-error",
+				text: `找不到音频文件：${music.src ?? "未填写 src"}`,
+			});
+			return;
+		}
+
+		const audioUrl = this.app.vault.getResourcePath(audioFile);
+
+		const card = container.createDiv({
+			cls: "music-player-card",
+		});
+
+		const coverContainer = card.createDiv({
+			cls: "music-player-cover",
+		});
+
+		const coverFile = music.cover
+			? this.resolveVaultFile(music.cover, ctx.sourcePath)
+			: null;
+
+		if (coverFile) {
+			const image = coverContainer.createEl("img");
+			image.src = this.app.vault.getResourcePath(coverFile);
+			image.alt = `${music.title ?? "未知曲目"} 封面`;
+		} else {
+			coverContainer.createDiv({
+				cls: "music-player-cover-placeholder",
+				text: "♫",
+			});
+		}
+
+		const content = card.createDiv({
+			cls: "music-player-content",
+		});
+
+		const metadata = content.createDiv({
+			cls: "music-player-metadata",
+		});
+
+		metadata.createDiv({
+			cls: "music-player-title",
+			text: music.title ?? "未知曲目",
+		});
+
+		metadata.createDiv({
+			cls: "music-player-artist",
+			text: music.artist ?? "未知艺术家",
+		});
+
+		const audio = content.createEl("audio");
+		audio.src = audioUrl;
+		audio.preload = "metadata";
+
+		const controls = content.createDiv({
+			cls: "music-player-controls",
+		});
+
+		const playButton = controls.createEl("button", {
+			cls: "music-player-play-button",
+			attr: {
+				type: "button",
+				"aria-label": "播放",
+			},
+		});
+
+		setIcon(playButton, "play");
+
+		const currentTime = controls.createSpan({
+			cls: "music-player-time music-player-current-time",
+			text: "0:00",
+		});
+
+		const progress = controls.createEl("input", {
+			cls: "music-player-progress",
+			type: "range",
+			attr: {
+				"aria-label": "播放进度",
+			},
+		});
+
+		progress.min = "0";
+		progress.max = "100";
+		progress.value = "0";
+		progress.step = "0.1";
+
+		const duration = controls.createSpan({
+			cls: "music-player-time music-player-duration",
+			text: "0:00",
+		});
+
+		playButton.addEventListener("click", async () => {
+			if (audio.paused) {
+				try {
+					await audio.play();
+				} catch (error) {
+					console.error("音频播放失败", error);
+				}
+			} else {
+				audio.pause();
+			}
+		});
+
+		audio.addEventListener("play", () => {
+			setIcon(playButton, "pause");
+
+			playButton.setAttribute("aria-label", "暂停");
+			card.addClass("is-playing");
+		});
+
+		audio.addEventListener("pause", () => {
+			setIcon(playButton, "play");
+
+			playButton.setAttribute("aria-label", "播放");
+			card.removeClass("is-playing");
+		});
+
+		audio.addEventListener("loadedmetadata", () => {
+			duration.textContent = this.formatTime(audio.duration);
+		});
+
+		audio.addEventListener("timeupdate", () => {
+			currentTime.textContent = this.formatTime(audio.currentTime);
+
+			if (Number.isFinite(audio.duration) && audio.duration > 0) {
+				progress.value = String(
+					(audio.currentTime / audio.duration) * 100,
+				);
+			}
+		});
+
+		progress.addEventListener("input", () => {
+			if (!Number.isFinite(audio.duration) || audio.duration <= 0) {
+				return;
+			}
+
+			audio.currentTime =
+				(Number(progress.value) / 100) * audio.duration;
+		});
+
+		audio.addEventListener("ended", () => {
+			progress.value = "0";
+			currentTime.textContent = "0:00";
+		});
+	}
+
+	private resolveVaultFile(
+		path: string,
+		sourcePath: string,
+	): TFile | null {
+		const directFile =
+			this.app.vault.getAbstractFileByPath(path);
+
+		if (directFile instanceof TFile) {
+			return directFile;
+		}
+
+		const linkedFile =
+			this.app.metadataCache.getFirstLinkpathDest(
+				path,
+				sourcePath,
+			);
+
+		return linkedFile instanceof TFile
+			? linkedFile
+			: null;
+	}
+
+	private formatTime(seconds: number): string {
+		if (!Number.isFinite(seconds)) {
+			return "0:00";
+		}
+
+		const minutes = Math.floor(seconds / 60);
+		const remainingSeconds = Math.floor(seconds % 60);
+
+		return `${minutes}:${remainingSeconds
+			.toString()
+			.padStart(2, "0")}`;
 	}
 }

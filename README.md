@@ -1,3 +1,5 @@
+![Knowledge Objects music player](assets/player-preview.png)
+
 # Obsidian Sample Plugin
 
 This is a sample plugin for Obsidian (https://obsidian.md).
