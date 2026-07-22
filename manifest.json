@@ -1,11 +1,11 @@
 {
-	"id": "knowledge-objects",
-	"name": "Knowledge Objects",
-	"version": "0.1.0",
-	"minAppVersion": "1.5.0",
-	"description": "Render semantic objects in Markdown.",
-	"author": "LockedCore",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
-	"isDesktopOnly": false
+    "id":"knowledge-objects",
+    "name":"Knowledge Objects",
+    "version":"0.1.0",
+    "minAppVersion":"1.5.0",
+    "description":"Render semantic objects in Markdown.",
+    "author":"linye0",
+    "authorUrl":"https://obsidian.md",
+    "fundingUrl":"https://obsidian.md/pricing",
+    "isDesktopOnly":false
 }
