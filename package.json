@@ -1,6 +1,6 @@
 {
 	"name": "knowledge-objects",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Render semantic music objects as interactive audio players in Markdown.",
 	"main": "main.js",
 	"type": "module",

@@ -1,10 +1,10 @@
 {
-    "id":"knowledge-objects",
-    "name":"Knowledge Objects",
-    "version":"0.1.0",
-    "minAppVersion":"1.5.0",
-    "description":"Render semantic objects in Markdown.",
-    "author":"linye0",
-    "authorUrl":"https://github.com/linye0",
-    "isDesktopOnly":false
+	"id": "knowledge-objects",
+	"name": "Knowledge Objects",
+	"version": "0.1.1",
+	"minAppVersion": "1.5.0",
+	"description": "Render semantic objects in Markdown.",
+	"author": "linye0",
+	"authorUrl": "https://github.com/linye0",
+	"isDesktopOnly": false
 }
