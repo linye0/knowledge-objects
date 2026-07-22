@@ -115,6 +115,8 @@
 	width: 100%;
 	min-width: 0;
 	margin-top: 18px;
+
+	overflow: hidden;
 }
 
 .music-player-play-button {
@@ -176,16 +178,18 @@
 	text-align: right;
 }
 
-.music-player-controls
+.music-player-card
+	.music-player-controls
 	> input.music-player-progress[type="range"] {
 	display: block;
 
-	width: 100% !important;
-	min-width: 0 !important;
-	max-width: none !important;
+	width: 100%;
+	min-width: 0;
+	max-width: 100%;
+	inline-size: 100%;
 
-	inline-size: 100% !important;
 	justify-self: stretch;
+	align-self: center;
 
 	margin: 0;
 	padding: 0;
