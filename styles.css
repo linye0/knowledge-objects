@@ -102,10 +102,6 @@
 	color: var(--text-muted);
 }
 
-.music-player-content audio {
-	display: none;
-}
-
 .music-player-controls {
 	display: grid;
 	grid-template-columns: 42px 40px minmax(0, 1fr) 40px;
@@ -210,6 +206,14 @@
 	color: var(--text-error);
 }
 
+.music-player-card.is-playing {
+	border-color: var(--interactive-accent);
+}
+
+.music-player-card.is-playing .music-player-title {
+	color: var(--interactive-accent);
+}
+
 @media (max-width: 520px) {
 	.music-player-card {
 		grid-template-columns: 76px minmax(0, 1fr);
@@ -238,5 +242,216 @@
 	.music-player-play-button svg {
 		width: 18px;
 		height: 18px;
+	}
+}
+
+/* =========================
+   Global mini player
+   ========================= */
+
+.knowledge-objects-mini-player {
+	display: none;
+
+	position: fixed;
+	left: 50%;
+	bottom: 24px;
+	transform: translateX(-50%);
+	z-index: 1000;
+
+	width: min(860px, calc(100vw - 32px));
+	padding: 10px 14px;
+
+	box-sizing: border-box;
+
+	grid-template-columns:
+		44px
+		minmax(130px, 190px)
+		42px
+		42px
+		minmax(0, 1fr)
+		42px
+		32px;
+
+	align-items: center;
+	gap: 10px;
+
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 14px;
+
+	background: color-mix(
+		in srgb,
+		var(--background-primary) 82%,
+		transparent
+	);
+
+	box-shadow:
+		0 10px 30px rgba(0, 0, 0, 0.24);
+
+	backdrop-filter: blur(14px);
+	-webkit-backdrop-filter: blur(14px);
+}
+
+.knowledge-objects-mini-player.is-visible {
+	display: grid;
+}
+
+.knowledge-objects-mini-cover {
+	display: block;
+
+	width: 44px;
+	height: 44px;
+
+	border-radius: 8px;
+	object-fit: cover;
+
+	background: var(--background-modifier-border);
+}
+
+.knowledge-objects-mini-cover.is-hidden {
+	visibility: hidden;
+}
+
+.knowledge-objects-mini-metadata {
+	min-width: 0;
+}
+
+.knowledge-objects-mini-title,
+.knowledge-objects-mini-artist {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.knowledge-objects-mini-title {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--text-normal);
+}
+
+.knowledge-objects-mini-artist {
+	margin-top: 2px;
+
+	font-size: 12px;
+	color: var(--text-muted);
+}
+
+.knowledge-objects-mini-play {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	width: 38px;
+	height: 38px;
+	padding: 0;
+
+	border: none;
+	border-radius: 50%;
+
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+
+	cursor: pointer;
+
+	transition:
+		transform 120ms ease,
+		filter 120ms ease;
+}
+
+.knowledge-objects-mini-play:hover {
+	transform: scale(1.05);
+	filter: brightness(1.08);
+}
+
+.knowledge-objects-mini-play:active {
+	transform: scale(0.96);
+}
+
+.knowledge-objects-mini-time {
+	font-size: 11px;
+	font-variant-numeric: tabular-nums;
+	color: var(--text-muted);
+}
+
+.knowledge-objects-mini-player
+	> input.knowledge-objects-mini-progress[type="range"] {
+	display: block;
+
+	width: 100%;
+	min-width: 0;
+	max-width: 100%;
+	inline-size: 100%;
+
+	justify-self: stretch;
+	align-self: center;
+
+	margin: 0;
+	padding: 0;
+
+	box-sizing: border-box;
+	cursor: pointer;
+
+	accent-color: var(--interactive-accent);
+}
+
+.knowledge-objects-mini-close {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	width: 28px;
+	height: 28px;
+	padding: 0;
+
+	border: none;
+	border-radius: 6px;
+
+	background: transparent;
+	color: var(--text-muted);
+
+	font-size: 22px;
+	line-height: 1;
+
+	cursor: pointer;
+
+	transition:
+		background-color 120ms ease,
+		color 120ms ease;
+}
+
+.knowledge-objects-mini-close:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+@media (max-width: 600px) {
+	.knowledge-objects-mini-player {
+		grid-template-columns:
+			40px
+			minmax(0, 1fr)
+			36px
+			28px;
+
+		gap: 10px;
+
+		bottom: 10px;
+
+		width: calc(100vw - 20px);
+		padding: 8px 10px;
+	}
+
+	.knowledge-objects-mini-cover {
+		width: 40px;
+		height: 40px;
+	}
+
+	.knowledge-objects-mini-play {
+		width: 36px;
+		height: 36px;
+	}
+
+	.knowledge-objects-mini-time,
+	.knowledge-objects-mini-player
+		> input.knowledge-objects-mini-progress[type="range"] {
+		display: none;
 	}
 }
