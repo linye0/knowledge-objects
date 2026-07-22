@@ -5,7 +5,6 @@
     "minAppVersion":"1.5.0",
     "description":"Render semantic objects in Markdown.",
     "author":"linye0",
-    "authorUrl":"https://obsidian.md",
-    "fundingUrl":"https://obsidian.md/pricing",
+    "authorUrl":"https://github.com/linye0",
     "isDesktopOnly":false
 }
