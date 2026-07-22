@@ -141,13 +141,11 @@ export default class KnowledgeObjectsPlugin extends Plugin {
 			text: "0:00",
 		});
 
-		playButton.addEventListener("click", async () => {
+		playButton.addEventListener("click", () => {
 			if (audio.paused) {
-				try {
-					await audio.play();
-				} catch (error) {
+				audio.play().catch((error) => {
 					console.error("音频播放失败", error);
-				}
+				});
 			} else {
 				audio.pause();
 			}
