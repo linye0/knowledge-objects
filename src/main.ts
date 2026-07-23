@@ -11,24 +11,27 @@ import { MusicRenderer } from "./renderers/MusicRenderer";
 
 export default class KnowledgeObjectsPlugin extends Plugin {
 	private player!: MusicPlayerService;
-	private miniPlayer!: MiniPlayer;
+	private miniPlayer: MiniPlayer | null = null;
 	private musicRenderer!: MusicRenderer;
+	private isUnloaded = false;
 
 	async onload(): Promise<void> {
+		this.isUnloaded = false;
 		this.player = new MusicPlayerService();
-
-		this.miniPlayer = new MiniPlayer(
-			this.app.workspace.containerEl,
-			this.player,
-		);
 
 		this.addRibbonIcon(
 			"music",
 			"显示或隐藏迷你播放器",
 			() => {
-				this.miniPlayer.toggle();
+				this.ensureMiniPlayer().toggle();
 			},
 		);
+
+		this.app.workspace.onLayoutReady(() => {
+			if (!this.isUnloaded) {
+				this.ensureMiniPlayer();
+			}
+		});
 
 		this.musicRenderer = new MusicRenderer(
 			this.app,
@@ -64,7 +67,23 @@ export default class KnowledgeObjectsPlugin extends Plugin {
 	}
 
 	onunload(): void {
-		this.miniPlayer.destroy();
+		this.isUnloaded = true;
+		this.miniPlayer?.destroy();
+		this.miniPlayer = null;
 		this.player.destroy();
+	}
+
+	private ensureMiniPlayer(): MiniPlayer {
+		if (this.miniPlayer?.isConnected) {
+			return this.miniPlayer;
+		}
+
+		this.miniPlayer?.destroy();
+		this.miniPlayer = new MiniPlayer(
+			this.app.workspace.containerEl,
+			this.player,
+		);
+
+		return this.miniPlayer;
 	}
 }

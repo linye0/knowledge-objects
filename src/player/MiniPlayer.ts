@@ -93,6 +93,10 @@ export class MiniPlayer {
 		});
 	}
 
+	get isConnected(): boolean {
+		return this.root.isConnected;
+	}
+
 	show(): void {
 		this.isOpen = true;
 		this.updateVisibility();
