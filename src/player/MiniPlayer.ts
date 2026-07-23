@@ -1,6 +1,8 @@
+import { setIcon } from "obsidian";
+
 import type { PlayerState } from "../types/music";
-import type { MusicPlayerService } from "./MusicPlayerService";
 import { formatTime } from "../utils/formatTime";
+import type { MusicPlayerService } from "./MusicPlayerService";
 
 export class MiniPlayer {
 	private readonly root: HTMLElement;
@@ -14,7 +16,6 @@ export class MiniPlayer {
 	private readonly closeButton: HTMLButtonElement;
 
 	private unsubscribe: (() => void) | null = null;
-
 	private isOpen = false;
 	private hasTrack = false;
 
@@ -28,9 +29,7 @@ export class MiniPlayer {
 
 		this.cover = this.root.createEl("img", {
 			cls: "knowledge-objects-mini-cover",
-			attr: {
-				alt: "",
-			},
+			attr: { alt: "" },
 		});
 
 		const metadata = this.root.createDiv({
@@ -49,7 +48,7 @@ export class MiniPlayer {
 			cls: "knowledge-objects-mini-play",
 			attr: {
 				type: "button",
-				"aria-label": "播放或暂停",
+				"aria-label": "播放",
 			},
 		});
 
@@ -61,7 +60,6 @@ export class MiniPlayer {
 			cls: "knowledge-objects-mini-progress",
 			type: "range",
 		});
-
 		this.progress.min = "0";
 		this.progress.step = "0.1";
 
@@ -73,11 +71,10 @@ export class MiniPlayer {
 			cls: "knowledge-objects-mini-close",
 			attr: {
 				type: "button",
-				"aria-label": "关闭播放器",
+				"aria-label": "关闭迷你播放器",
 			},
 		});
-
-		this.closeButton.textContent = "×";
+		setIcon(this.closeButton, "x");
 
 		this.closeButton.addEventListener("click", () => {
 			this.hide();
@@ -97,10 +94,6 @@ export class MiniPlayer {
 	}
 
 	show(): void {
-		if (!this.hasTrack) {
-			return;
-		}
-
 		this.isOpen = true;
 		this.updateVisibility();
 	}
@@ -111,19 +104,8 @@ export class MiniPlayer {
 	}
 
 	toggle(): void {
-		if (!this.hasTrack) {
-			return;
-		}
-
 		this.isOpen = !this.isOpen;
 		this.updateVisibility();
-	}
-
-	private updateVisibility(): void {
-		this.root.toggleClass(
-			"is-visible",
-			this.hasTrack && this.isOpen,
-		);
 	}
 
 	destroy(): void {
@@ -132,34 +114,50 @@ export class MiniPlayer {
 		this.root.remove();
 	}
 
+	private updateVisibility(): void {
+		this.root.toggleClass("is-visible", this.isOpen);
+	}
+
 	private render(state: PlayerState): void {
 		const { track } = state;
 
 		this.hasTrack = track !== null;
+		this.playButton.disabled = !this.hasTrack;
+		this.progress.disabled = !this.hasTrack;
 
 		if (!track) {
-			this.isOpen = false;
+			this.title.textContent = "暂无播放曲目";
+			this.artist.textContent = "请从音乐卡片中选择一首歌曲";
+			this.currentTime.textContent = formatTime(0);
+			this.duration.textContent = formatTime(0);
+			this.progress.max = "0";
+			this.progress.value = "0";
+			this.cover.removeAttribute("src");
+			this.cover.addClass("is-hidden");
+			this.playButton.setAttribute(
+				"aria-label",
+				"暂无可播放曲目",
+			);
+			setIcon(this.playButton, "play");
 			this.updateVisibility();
 			return;
 		}
 
-		this.updateVisibility();
-
 		this.title.textContent = track.title;
 		this.artist.textContent = track.artist;
-
-		this.playButton.textContent = state.isPlaying
-			? "❚❚"
-			: "▶";
+		this.playButton.setAttribute(
+			"aria-label",
+			state.isPlaying ? "暂停" : "播放",
+		);
+		setIcon(
+			this.playButton,
+			state.isPlaying ? "pause" : "play",
+		);
 
 		this.currentTime.textContent = formatTime(
 			state.currentTime,
 		);
-
-		this.duration.textContent = formatTime(
-			state.duration,
-		);
-
+		this.duration.textContent = formatTime(state.duration);
 		this.progress.max = String(state.duration || 0);
 		this.progress.value = String(state.currentTime);
 
@@ -170,5 +168,7 @@ export class MiniPlayer {
 			this.cover.removeAttribute("src");
 			this.cover.addClass("is-hidden");
 		}
+
+		this.updateVisibility();
 	}
 }
