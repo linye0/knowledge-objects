@@ -24,7 +24,7 @@ export default class KnowledgeObjectsPlugin extends Plugin {
 
 		this.addRibbonIcon(
 			"music",
-			"Toggle mini player",
+			"显示或隐藏迷你播放器",
 			() => {
 				this.miniPlayer.toggle();
 			},
